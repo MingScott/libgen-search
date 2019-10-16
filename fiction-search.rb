@@ -2,9 +2,7 @@
 require 'nokogiri'
 require 'open-uri'
 require 'optparse'
-require 'net/http'
-#setup
-Dir.mkdir "data" unless Dir.exists? "data"
+
 # http://gen.lib.rus.ec/fiction/?q=watership+down&criteria=title&language=English&format=mobi
 crit = ""
 wildcard = ""
@@ -56,7 +54,7 @@ end
 puts "Saving first of each unique title matching search:"
 for ii in 0..results[:titles].length-1
 	puts "#{results[:authors][ii]}	#{results[:titles][ii]}"
-	fname = "data/#{results[:titles][ii].gsub(" ","_")}.#{form}"
+	fname = "#{results[:titles][ii].gsub(" ","_")}.#{form}"
 	File.open(fname, "wb") do |local_f|
 		open(results[:files][ii], 'rb') do |remote_f|
 			local_f.write(remote_f.read)
