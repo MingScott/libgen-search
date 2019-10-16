@@ -1,4 +1,4 @@
-#!/usr/bin/env ru
+#!/usr/bin/env ruby
 require 'nokogiri'
 require 'open-uri'
 require 'optparse'
