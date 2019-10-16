@@ -1,9 +1,10 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env ru
 require 'nokogiri'
 require 'open-uri'
 require 'optparse'
 require 'net/http'
-
+#setup
+Dir.mkdir "data" unless Dir.exists? "data"
 # http://gen.lib.rus.ec/fiction/?q=watership+down&criteria=title&language=English&format=mobi
 crit = ""
 wildcard = ""
