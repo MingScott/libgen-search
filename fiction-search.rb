@@ -7,11 +7,12 @@ require 'optparse'
 crit = ""
 wildcard = ""
 lang = "English"
-form = "mobi"
+form = ""
 download = false
 view_results = true
 view_download_links = true
 unique = true
+ask = true
 OptionParser.new do |o|
 	o.banner = ""
 	o.on("-a","--crit-author", "search by author") do |a|
@@ -32,7 +33,7 @@ OptionParser.new do |o|
 	o.on("-l","--language LANGUAGE", "Language of title (default English)") do |l|
 		lang = l
 	end
-	o.on("-f","--format FORMAT", "Format to search for (default mobi") do |f|
+	o.on("-f","--format FORMAT", "Format to search for (default empty") do |f|
 		form = f
 	end
 	o.on("-D", "--download", "Download all unique books") do |d|
@@ -47,6 +48,7 @@ OptionParser.new do |o|
 	o.on("-u","--show-all", "Show all results") do |x|
 		unique = false
 	end
+	o.on("--no-ask-download-after", "Add query asking if you would like to download afterwards")
 end.parse!
 query = ARGV.join("+")
 base_url = "http://gen.lib.rus.ec"
@@ -74,7 +76,7 @@ while next_page
 			end
 		end
 	end
-	nav = search_page.css("div.catalog_paginator a")
+	nav = search_page.css "div.catalog_paginator a"
 	old_page = next_page
 	nav.each do |l|
 		next_page = if l.content == "▶"
@@ -87,11 +89,27 @@ end
 for ii in 0..results[:titles].length-1
 	link = ""
 	link = results[:files][ii] if view_download_links
-	puts "#{(ii+1).to_s}:		#{results[:authors][ii]}\n	#{results[:titles][ii]}\n#{link}\n\n" if view_results
+	puts "#{ii.to_s}:		#{results[:authors][ii]}\n	#{results[:titles][ii]}\n#{link}\n\n" if view_results
+	form = results[:files][ii].split(".").last
 	fname = "#{results[:titles][ii].gsub(" ","_")}.#{form}"
 	File.open(fname, "wb") do |local_f|
 		open(results[:files][ii], 'rb') do |remote_f|
 			local_f.write(remote_f.read)
 		end
 	end if download
+end
+if ask and results[:files].length > 0 and not download
+	print "Enter index to download or \"c\" to cancel: "
+	ans = STDIN.gets.chomp.upcase
+	unless ans == "C"
+		ans = ans.to_i
+		form = results[:files][ans].split(".").last
+		fname = "#{results[:titles][ans].gsub(" ","_")}.#{form}"
+		File.open(fname, "wb") do |local_f|
+			open(results[:files][ans], 'rb') do |remote_f|
+				local_f.write(remote_f.read)
+			end
+		end
+	end
+	puts "Done!"
 end
